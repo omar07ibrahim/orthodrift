@@ -46,6 +46,22 @@ Compatibility normalization is not labeled canonical. NFKC and NFKD can erase
 meaningful distinctions and must be measured as mitigations with false-merge
 tests, not enabled as a universal cleanup step.
 
+Case files accept only registered rule, rule-pack, and version combinations.
+Built-in rules regenerate their output and validate their parameters before a
+retrieval run begins; provenance labels are not free-form annotations. A case's
+Unicode version records the data version under which that mutation was authored.
+Every run separately fingerprints the executing Python Unicode database and
+`regex` package. Artifact verification requires that runtime fingerprint and
+replays both rule validation and retrieval, so results from a different Unicode
+runtime remain inspectable but are not silently called verified.
+
+The v1 engine does not bundle a second Unicode database. It revalidates an
+authored mutation with the executing runtime and rejects the case if that runtime
+cannot reproduce the registered edit. Older runtimes can therefore execute
+stable mappings such as `Ş` decomposition without implying that their complete
+Unicode tables are identical; later-version mappings may require a future pinned
+data backend.
+
 ## First research questions
 
 1. How often do canonically equivalent forms change token count, embedding

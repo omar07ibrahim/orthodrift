@@ -1,0 +1,76 @@
+{
+  "schema": "orthodrift.case.v1",
+  "name": "shaki-decomposed-grapheme",
+  "documents": [
+    {
+      "id": "distractor",
+      "text": "atlası tarixi"
+    },
+    {
+      "id": "target",
+      "text": "Şəki atlası sənətkarlıq"
+    }
+  ],
+  "query": "Şəki atlası 2026",
+  "target_document_id": "target",
+  "max_rank": 1,
+  "mutations": [
+    {
+      "id": "decompose-s-cedilla",
+      "rule_id": "unicode.normalize-span.nfd",
+      "relation": "canonical",
+      "edit": {
+        "start": 0,
+        "before": ["Ş"],
+        "after": ["S\u0327"]
+      },
+      "parameters": {
+        "form": "NFD",
+        "scope": "edit-span"
+      },
+      "seed": null,
+      "rule_pack": {
+        "id": "unicode-normalization",
+        "version": "1"
+      },
+      "unicode_version": "16.0.0"
+    },
+    {
+      "id": "ascii-uppercase-i",
+      "rule_id": "adversarial.ascii-uppercase",
+      "relation": "adversarial",
+      "edit": {
+        "start": 3,
+        "before": ["i"],
+        "after": ["I"]
+      },
+      "parameters": {},
+      "seed": null,
+      "rule_pack": {
+        "id": "orthodrift-adversarial",
+        "version": "0.1.0a0"
+      },
+      "unicode_version": null
+    },
+    {
+      "id": "shift-query-year",
+      "rule_id": "adversarial.numeric-shift",
+      "relation": "adversarial",
+      "edit": {
+        "start": 12,
+        "before": ["2", "0", "2", "6"],
+        "after": ["2", "0", "2", "7"]
+      },
+      "parameters": {
+        "delta": "1"
+      },
+      "seed": null,
+      "rule_pack": {
+        "id": "orthodrift-adversarial",
+        "version": "0.1.0a0"
+      },
+      "unicode_version": null
+    }
+  ],
+  "proof_budget": 4096
+}
