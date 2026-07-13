@@ -104,6 +104,23 @@ def test_invalid_edits_fail_loudly(
         apply_grapheme_edits(text, edits)
 
 
+def test_boolean_edit_coordinates_are_rejected() -> None:
+    with pytest.raises(ValueError, match="start"):
+        GraphemeEdit.from_text(True, "b", "B")
+
+
+def test_edit_units_must_be_a_valid_grapheme_partition() -> None:
+    with pytest.raises(ValueError, match="valid extended-grapheme partition"):
+        GraphemeEdit(start=0, before=("Ş",), after=("S", "\u0327"))
+
+
+def test_edits_cannot_create_a_cluster_across_their_boundary() -> None:
+    combining_insertion = GraphemeEdit(start=1, before=(), after=("\u0327",))
+
+    with pytest.raises(ValueError, match="invalid output-cluster boundary"):
+        apply_grapheme_edits("ab", (combining_insertion,))
+
+
 def test_transform_step_reconstructs_its_output() -> None:
     edit = GraphemeEdit.from_text(start=1, before="e\u0301", after="é")
     step = TransformStep.from_edits(

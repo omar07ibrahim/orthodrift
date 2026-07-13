@@ -122,3 +122,5 @@ def test_reducer_requires_a_passing_baseline_and_failing_mutant() -> None:
 def test_invalid_proof_budget_is_rejected() -> None:
     with pytest.raises(ValueError, match="proof_budget"):
         reduce_failure("a", (), lambda _: False, proof_budget=-1)
+    with pytest.raises(ValueError, match="proof_budget"):
+        reduce_failure("a", (), lambda _: False, proof_budget=True)

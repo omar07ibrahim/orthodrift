@@ -1,6 +1,6 @@
 import pytest
 
-from orthodrift.retrieval import BM25Index, Document, tokenize_words
+from orthodrift.retrieval import BM25Index, BM25Spec, Document, tokenize_words
 
 
 def test_tokenizer_casefolds_without_normalizing() -> None:
@@ -88,6 +88,18 @@ def test_duplicate_document_ids_are_rejected() -> None:
 def test_invalid_k1_is_rejected(k1: float) -> None:
     with pytest.raises(ValueError, match="k1"):
         BM25Index([], k1=k1)
+
+
+@pytest.mark.parametrize("value", [True, float("nan"), float("inf"), float("-inf")])
+def test_non_finite_and_boolean_bm25_numbers_are_rejected(value: float) -> None:
+    with pytest.raises(ValueError, match="finite number"):
+        BM25Index([], k1=value)
+    with pytest.raises(ValueError, match="finite number"):
+        BM25Spec(k1=value)
+    with pytest.raises(ValueError, match="finite number"):
+        BM25Index([], b=value)
+    with pytest.raises(ValueError, match="finite number"):
+        BM25Spec(b=value)
 
 
 @pytest.mark.parametrize("b", [-0.1, 1.1])

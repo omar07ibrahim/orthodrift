@@ -1,5 +1,17 @@
 """Tools for measuring orthographic failures in multilingual retrieval."""
 
+from orthodrift.experiment import (
+    CASE_SCHEMA_VERSION,
+    CaseMutation,
+    RankMeasurement,
+    RetrievalCase,
+    RetrievalCaseRun,
+    RuntimeFingerprint,
+    case_from_record,
+    case_to_record,
+    load_case,
+    run_case,
+)
 from orthodrift.normalization import NormalizationForm, normalization_step, normalize_variant
 from orthodrift.reduction import (
     Minimality,
@@ -7,7 +19,24 @@ from orthodrift.reduction import (
     ReductionTrial,
     reduce_failure,
 )
-from orthodrift.retrieval import BM25Index, Document, SearchHit, tokenize_words
+from orthodrift.retrieval import (
+    DEFAULT_BM25_SPEC,
+    BM25Index,
+    BM25Spec,
+    Document,
+    SearchHit,
+    tokenize_words,
+)
+from orthodrift.run_serialization import (
+    RUN_SCHEMA_VERSION,
+    dumps_run,
+    loads_run,
+    read_runs_jsonl,
+    run_from_record,
+    run_to_record,
+    verify_run,
+    write_runs_jsonl,
+)
 from orthodrift.serialization import (
     SCHEMA_VERSION,
     dumps_result,
@@ -29,30 +58,50 @@ from orthodrift.text import (
 
 __all__ = [
     "BM25Index",
+    "BM25Spec",
+    "CASE_SCHEMA_VERSION",
+    "CaseMutation",
+    "DEFAULT_BM25_SPEC",
     "Document",
     "GraphemeEdit",
     "Minimality",
     "NormalizationForm",
+    "RUN_SCHEMA_VERSION",
+    "RankMeasurement",
     "ReductionResult",
     "ReductionTrial",
+    "RetrievalCase",
+    "RetrievalCaseRun",
+    "RuntimeFingerprint",
     "SCHEMA_VERSION",
     "Relation",
     "SearchHit",
     "TextVariant",
     "TransformStep",
     "apply_grapheme_edits",
+    "case_from_record",
+    "case_to_record",
     "diff_graphemes",
     "dumps_result",
+    "dumps_run",
     "graphemes",
     "loads_result",
+    "loads_run",
+    "load_case",
     "normalization_step",
     "normalize_variant",
     "reduce_failure",
     "read_jsonl",
+    "read_runs_jsonl",
     "result_from_record",
     "result_to_record",
+    "run_case",
+    "run_from_record",
+    "run_to_record",
     "tokenize_words",
+    "verify_run",
     "write_jsonl",
+    "write_runs_jsonl",
 ]
 
-__version__ = "0.0.0"
+__version__ = "0.1.0a0"

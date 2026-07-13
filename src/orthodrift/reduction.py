@@ -41,7 +41,10 @@ class ReductionResult:
 
         if self.reduced_indexes != tuple(sorted(set(self.reduced_indexes))):
             raise ValueError("reduced indexes must be sorted and unique")
-        if any(index < 0 or index >= len(self.original_edits) for index in self.reduced_indexes):
+        if any(
+            type(index) is not int or index < 0 or index >= len(self.original_edits)
+            for index in self.reduced_indexes
+        ):
             raise ValueError("reduced index is outside original_edits")
 
         expected_edits = tuple(self.original_edits[index] for index in self.reduced_indexes)
@@ -56,7 +59,10 @@ class ReductionResult:
                 raise ValueError("trial failed flag must be boolean")
             if trial.edit_indexes != tuple(sorted(set(trial.edit_indexes))):
                 raise ValueError("trial indexes must be sorted and unique")
-            if any(index < 0 or index >= len(self.original_edits) for index in trial.edit_indexes):
+            if any(
+                type(index) is not int or index < 0 or index >= len(self.original_edits)
+                for index in trial.edit_indexes
+            ):
                 raise ValueError("trial index is outside original_edits")
             if trial.edit_indexes in trials_by_indexes:
                 raise ValueError("trial edit indexes must be unique")
@@ -96,7 +102,7 @@ def reduce_failure(
     oracle calls; baseline validation and one-minimal reduction are not capped.
     """
 
-    if proof_budget < 0:
+    if type(proof_budget) is not int or proof_budget < 0:
         raise ValueError("proof_budget must be non-negative")
 
     apply_grapheme_edits(source, edits)

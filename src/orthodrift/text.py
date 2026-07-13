@@ -7,12 +7,15 @@ from enum import StrEnum
 
 import regex
 
+from orthodrift._schema import string
+
 _GRAPHEME = regex.compile(r"\X")
 
 
 def graphemes(text: str) -> tuple[str, ...]:
     """Split text into Unicode extended grapheme clusters."""
 
+    string(text, "text")
     return tuple(_GRAPHEME.findall(text))
 
 
@@ -35,7 +38,7 @@ class GraphemeEdit:
     after: tuple[str, ...]
 
     def __post_init__(self) -> None:
-        if self.start < 0:
+        if type(self.start) is not int or self.start < 0:
             raise ValueError("edit start must be non-negative")
         if self.before == self.after:
             raise ValueError("an edit must change the text")
@@ -43,6 +46,9 @@ class GraphemeEdit:
         for cluster in (*self.before, *self.after):
             if not cluster or graphemes(cluster) != (cluster,):
                 raise ValueError(f"not an extended grapheme cluster: {cluster!r}")
+        for clusters in (self.before, self.after):
+            if graphemes("".join(clusters)) != clusters:
+                raise ValueError("edit tuple is not a valid extended-grapheme partition")
 
     @classmethod
     def from_text(cls, start: int, before: str, after: str) -> GraphemeEdit:
@@ -77,7 +83,10 @@ def apply_grapheme_edits(text: str, edits: tuple[GraphemeEdit, ...]) -> str:
         cursor = edit.end
 
     result.extend(source[cursor:])
-    return "".join(result)
+    output = "".join(result)
+    if graphemes(output) != tuple(result):
+        raise ValueError("grapheme edits create an invalid output-cluster boundary")
+    return output
 
 
 def diff_graphemes(before: str, after: str) -> tuple[GraphemeEdit, ...]:
@@ -255,6 +264,8 @@ class TransformStep:
             raise ValueError("rule_id cannot contain whitespace")
         if not self.edits:
             raise ValueError("a transform step must contain at least one edit")
+        if self.seed is not None and type(self.seed) is not int:
+            raise ValueError("seed must be an integer or null")
 
         keys = [key for key, _ in self.parameters]
         if any(not key or key.strip() != key for key in keys):

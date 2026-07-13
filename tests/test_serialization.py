@@ -50,6 +50,17 @@ def test_jsonl_round_trip(tmp_path: Path) -> None:
     assert read_jsonl(path) == (result, result)
 
 
+@pytest.mark.parametrize("separator", ["\u0085", "\u2028", "\u2029"])
+def test_jsonl_preserves_unicode_line_separators(tmp_path: Path, separator: str) -> None:
+    edit = GraphemeEdit.from_text(0, "a", "A")
+    result = reduce_failure(f"a{separator}b", (edit,), lambda text: text.startswith("A"))
+    path = tmp_path / "unicode-separator.jsonl"
+
+    write_jsonl(path, [result])
+
+    assert read_jsonl(path) == (result,)
+
+
 def test_empty_jsonl_is_valid(tmp_path: Path) -> None:
     path = tmp_path / "results.jsonl"
 
