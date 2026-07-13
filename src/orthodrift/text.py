@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from enum import StrEnum
 
 import regex
@@ -82,6 +83,28 @@ def apply_grapheme_edits(text: str, edits: tuple[GraphemeEdit, ...]) -> str:
 
     result.extend(source[cursor:])
     return "".join(result)
+
+
+def diff_graphemes(before: str, after: str) -> tuple[GraphemeEdit, ...]:
+    """Describe a string change in the source's grapheme coordinates."""
+
+    source = graphemes(before)
+    target = graphemes(after)
+    matcher = SequenceMatcher(a=source, b=target, autojunk=False)
+    edits: list[GraphemeEdit] = []
+
+    for operation, source_start, source_end, target_start, target_end in matcher.get_opcodes():
+        if operation == "equal":
+            continue
+        edits.append(
+            GraphemeEdit(
+                start=source_start,
+                before=source[source_start:source_end],
+                after=target[target_start:target_end],
+            )
+        )
+
+    return tuple(edits)
 
 
 @dataclass(frozen=True, slots=True)

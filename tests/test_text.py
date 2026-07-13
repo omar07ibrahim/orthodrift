@@ -8,6 +8,7 @@ from orthodrift.text import (
     TextVariant,
     TransformStep,
     apply_grapheme_edits,
+    diff_graphemes,
     graphemes,
 )
 
@@ -33,6 +34,26 @@ def test_multiple_edits_are_applied_against_the_same_input() -> None:
     )
 
     assert apply_grapheme_edits("abcd", edits) == "AbcD"
+
+
+@pytest.mark.parametrize(
+    ("before", "after"),
+    [
+        ("kitab", "Kitab!"),
+        ("a\u0301bc", "á"),
+        ("salam", ""),
+        ("", "salam"),
+        ("abab", "aXab"),
+    ],
+)
+def test_grapheme_diff_reconstructs_target(before: str, after: str) -> None:
+    edits = diff_graphemes(before, after)
+
+    assert apply_grapheme_edits(before, edits) == after
+
+
+def test_grapheme_diff_of_equal_text_is_empty() -> None:
+    assert diff_graphemes("eyni", "eyni") == ()
 
 
 @pytest.mark.parametrize(
