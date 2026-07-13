@@ -1,6 +1,7 @@
 """Tools for measuring orthographic failures in multilingual retrieval."""
 
 from orthodrift.normalization import NormalizationForm, normalization_step, normalize_variant
+from orthodrift.retrieval import BM25Index, Document, SearchHit, tokenize_words
 from orthodrift.text import (
     GraphemeEdit,
     Relation,
@@ -12,9 +13,12 @@ from orthodrift.text import (
 )
 
 __all__ = [
+    "BM25Index",
+    "Document",
     "GraphemeEdit",
     "NormalizationForm",
     "Relation",
+    "SearchHit",
     "TextVariant",
     "TransformStep",
     "apply_grapheme_edits",
@@ -22,6 +26,7 @@ __all__ = [
     "graphemes",
     "normalization_step",
     "normalize_variant",
+    "tokenize_words",
 ]
 
 __version__ = "0.0.0"
