@@ -36,6 +36,16 @@ def test_multiple_edits_are_applied_against_the_same_input() -> None:
     assert apply_grapheme_edits("abcd", edits) == "AbcD"
 
 
+def test_insertions_can_share_a_source_boundary() -> None:
+    edits = (
+        GraphemeEdit.from_text(start=1, before="", after="X"),
+        GraphemeEdit.from_text(start=1, before="", after="Y"),
+        GraphemeEdit.from_text(start=1, before="b", after="B"),
+    )
+
+    assert apply_grapheme_edits("abc", edits) == "aXYBc"
+
+
 @pytest.mark.parametrize(
     ("before", "after"),
     [
@@ -54,6 +64,14 @@ def test_grapheme_diff_reconstructs_target(before: str, after: str) -> None:
 
 def test_grapheme_diff_of_equal_text_is_empty() -> None:
     assert diff_graphemes("eyni", "eyni") == ()
+
+
+def test_grapheme_diff_uses_a_minimum_edit_alignment() -> None:
+    edits = diff_graphemes("tide", "diet")
+    operation_count = sum(max(len(edit.before), len(edit.after)) for edit in edits)
+
+    assert operation_count == 3
+    assert apply_grapheme_edits("tide", edits) == "diet"
 
 
 @pytest.mark.parametrize(

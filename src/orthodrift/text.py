@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from difflib import SequenceMatcher
 from enum import StrEnum
 
 import regex
@@ -60,13 +59,10 @@ def apply_grapheme_edits(text: str, edits: tuple[GraphemeEdit, ...]) -> str:
     source = graphemes(text)
     result: list[str] = []
     cursor = 0
-    previous: GraphemeEdit | None = None
 
     for edit in edits:
         if edit.start < cursor:
             raise ValueError("grapheme edits overlap or are not ordered")
-        if previous and not previous.before and edit.start == previous.start:
-            raise ValueError("multiple insertions at one boundary are ambiguous")
         if edit.end > len(source):
             raise ValueError("grapheme edit extends past the input")
 
@@ -79,32 +75,165 @@ def apply_grapheme_edits(text: str, edits: tuple[GraphemeEdit, ...]) -> str:
         result.extend(source[cursor : edit.start])
         result.extend(edit.after)
         cursor = edit.end
-        previous = edit
 
     result.extend(source[cursor:])
     return "".join(result)
 
 
 def diff_graphemes(before: str, after: str) -> tuple[GraphemeEdit, ...]:
-    """Describe a string change in the source's grapheme coordinates."""
+    """Return a minimum-cost Levenshtein script in grapheme coordinates."""
 
     source = graphemes(before)
     target = graphemes(after)
-    matcher = SequenceMatcher(a=source, b=target, autojunk=False)
+    prefix = 0
+    while prefix < min(len(source), len(target)) and source[prefix] == target[prefix]:
+        prefix += 1
+
+    source_end = len(source)
+    target_end = len(target)
+    while (
+        source_end > prefix
+        and target_end > prefix
+        and source[source_end - 1] == target[target_end - 1]
+    ):
+        source_end -= 1
+        target_end -= 1
+
+    source_middle = source[prefix:source_end]
+    target_middle = target[prefix:target_end]
+    alignment = _minimum_alignment(source_middle, target_middle)
+
     edits: list[GraphemeEdit] = []
+    edit_start: int | None = None
+    removed: list[str] = []
+    inserted: list[str] = []
+    source_index = prefix
 
-    for operation, source_start, source_end, target_start, target_end in matcher.get_opcodes():
-        if operation == "equal":
+    def flush() -> None:
+        nonlocal edit_start
+        if edit_start is None:
+            return
+        edits.append(GraphemeEdit(start=edit_start, before=tuple(removed), after=tuple(inserted)))
+        edit_start = None
+        removed.clear()
+        inserted.clear()
+
+    for source_cluster, target_cluster in alignment:
+        if source_cluster is not None and source_cluster == target_cluster:
+            flush()
+            source_index += 1
             continue
-        edits.append(
-            GraphemeEdit(
-                start=source_start,
-                before=source[source_start:source_end],
-                after=target[target_start:target_end],
-            )
-        )
 
+        if edit_start is None:
+            edit_start = source_index
+        if source_cluster is not None:
+            removed.append(source_cluster)
+            source_index += 1
+        if target_cluster is not None:
+            inserted.append(target_cluster)
+
+    flush()
     return tuple(edits)
+
+
+def _minimum_alignment(
+    source: tuple[str, ...], target: tuple[str, ...]
+) -> tuple[tuple[str | None, str | None], ...]:
+    if not source:
+        return tuple((None, cluster) for cluster in target)
+    if not target:
+        return tuple((cluster, None) for cluster in source)
+    if source == target:
+        return tuple(zip(source, target, strict=True))
+    if len(source) == 1 or len(target) == 1:
+        return _small_alignment(source, target)
+
+    source_split = len(source) // 2
+    left_costs = _distance_row(source[:source_split], target)
+    right_costs = _distance_row(
+        tuple(reversed(source[source_split:])),
+        tuple(reversed(target)),
+    )
+    target_split = min(
+        range(len(target) + 1),
+        key=lambda index: left_costs[index] + right_costs[len(target) - index],
+    )
+
+    return (
+        *_minimum_alignment(source[:source_split], target[:target_split]),
+        *_minimum_alignment(source[source_split:], target[target_split:]),
+    )
+
+
+def _distance_row(source: tuple[str, ...], target: tuple[str, ...]) -> list[int]:
+    previous = list(range(len(target) + 1))
+    for source_index, source_cluster in enumerate(source, start=1):
+        current = [source_index]
+        for target_index, target_cluster in enumerate(target, start=1):
+            current.append(
+                min(
+                    previous[target_index] + 1,
+                    current[target_index - 1] + 1,
+                    previous[target_index - 1] + (source_cluster != target_cluster),
+                )
+            )
+        previous = current
+    return previous
+
+
+def _small_alignment(
+    source: tuple[str, ...], target: tuple[str, ...]
+) -> tuple[tuple[str | None, str | None], ...]:
+    costs = [[0] * (len(target) + 1) for _ in range(len(source) + 1)]
+    for source_index in range(1, len(source) + 1):
+        costs[source_index][0] = source_index
+    for target_index in range(1, len(target) + 1):
+        costs[0][target_index] = target_index
+
+    for source_index, source_cluster in enumerate(source, start=1):
+        for target_index, target_cluster in enumerate(target, start=1):
+            substitution = costs[source_index - 1][target_index - 1]
+            if source_cluster != target_cluster:
+                substitution += 1
+            costs[source_index][target_index] = min(
+                substitution,
+                costs[source_index - 1][target_index] + 1,
+                costs[source_index][target_index - 1] + 1,
+            )
+
+    source_index = len(source)
+    target_index = len(target)
+    reversed_alignment: list[tuple[str | None, str | None]] = []
+    while source_index or target_index:
+        if (
+            source_index
+            and target_index
+            and source[source_index - 1] == target[target_index - 1]
+            and costs[source_index][target_index] == costs[source_index - 1][target_index - 1]
+        ):
+            reversed_alignment.append((source[source_index - 1], target[target_index - 1]))
+            source_index -= 1
+            target_index -= 1
+        elif (
+            source_index
+            and target_index
+            and costs[source_index][target_index] == costs[source_index - 1][target_index - 1] + 1
+        ):
+            reversed_alignment.append((source[source_index - 1], target[target_index - 1]))
+            source_index -= 1
+            target_index -= 1
+        elif (
+            source_index
+            and costs[source_index][target_index] == costs[source_index - 1][target_index] + 1
+        ):
+            reversed_alignment.append((source[source_index - 1], None))
+            source_index -= 1
+        else:
+            reversed_alignment.append((None, target[target_index - 1]))
+            target_index -= 1
+
+    reversed_alignment.reverse()
+    return tuple(reversed_alignment)
 
 
 @dataclass(frozen=True, slots=True)
