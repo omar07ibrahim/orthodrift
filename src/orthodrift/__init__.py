@@ -1,6 +1,12 @@
 """Tools for measuring orthographic failures in multilingual retrieval."""
 
 from orthodrift.normalization import NormalizationForm, normalization_step, normalize_variant
+from orthodrift.reduction import (
+    Minimality,
+    ReductionResult,
+    ReductionTrial,
+    reduce_failure,
+)
 from orthodrift.retrieval import BM25Index, Document, SearchHit, tokenize_words
 from orthodrift.text import (
     GraphemeEdit,
@@ -16,7 +22,10 @@ __all__ = [
     "BM25Index",
     "Document",
     "GraphemeEdit",
+    "Minimality",
     "NormalizationForm",
+    "ReductionResult",
+    "ReductionTrial",
     "Relation",
     "SearchHit",
     "TextVariant",
@@ -26,6 +35,7 @@ __all__ = [
     "graphemes",
     "normalization_step",
     "normalize_variant",
+    "reduce_failure",
     "tokenize_words",
 ]
 
