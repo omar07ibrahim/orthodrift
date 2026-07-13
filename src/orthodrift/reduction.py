@@ -34,6 +34,48 @@ class ReductionResult:
     minimality: Minimality
     trials: tuple[ReductionTrial, ...]
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.minimality, Minimality):
+            raise ValueError("minimality must be a Minimality value")
+        apply_grapheme_edits(self.source, self.original_edits)
+
+        if self.reduced_indexes != tuple(sorted(set(self.reduced_indexes))):
+            raise ValueError("reduced indexes must be sorted and unique")
+        if any(index < 0 or index >= len(self.original_edits) for index in self.reduced_indexes):
+            raise ValueError("reduced index is outside original_edits")
+
+        expected_edits = tuple(self.original_edits[index] for index in self.reduced_indexes)
+        if self.reduced_edits != expected_edits:
+            raise ValueError("reduced edits do not match reduced indexes")
+        if apply_grapheme_edits(self.source, expected_edits) != self.text:
+            raise ValueError("reduced edits do not reconstruct result text")
+
+        trials_by_indexes: dict[tuple[int, ...], ReductionTrial] = {}
+        for trial in self.trials:
+            if type(trial.failed) is not bool:
+                raise ValueError("trial failed flag must be boolean")
+            if trial.edit_indexes != tuple(sorted(set(trial.edit_indexes))):
+                raise ValueError("trial indexes must be sorted and unique")
+            if any(index < 0 or index >= len(self.original_edits) for index in trial.edit_indexes):
+                raise ValueError("trial index is outside original_edits")
+            if trial.edit_indexes in trials_by_indexes:
+                raise ValueError("trial edit indexes must be unique")
+
+            trial_edits = tuple(self.original_edits[index] for index in trial.edit_indexes)
+            if apply_grapheme_edits(self.source, trial_edits) != trial.text:
+                raise ValueError("trial edits do not reconstruct trial text")
+            trials_by_indexes[trial.edit_indexes] = trial
+
+        baseline = trials_by_indexes.get(())
+        full = trials_by_indexes.get(tuple(range(len(self.original_edits))))
+        if baseline is None or baseline.failed:
+            raise ValueError("result must contain a passing baseline trial")
+        if full is None or not full.failed:
+            raise ValueError("result must contain a failing full-edit trial")
+        reduced_trial = trials_by_indexes.get(self.reduced_indexes)
+        if reduced_trial is None or not reduced_trial.failed:
+            raise ValueError("result must contain a failing reduced-edit trial")
+
     @property
     def evaluations(self) -> int:
         return len(self.trials)
