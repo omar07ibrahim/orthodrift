@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 500" role="img">
+<title>Target document rank across the recorded query variants</title>
+<desc>The synthetic target ranks first for the baseline and second for both failing variants.</desc>
+<style>text{font-family:Inter,system-ui,sans-serif;fill:#eaf2ff}.title{font-size:30px;font-weight:750}.sub{font-size:15px;fill:#91a8c7}.label{font-size:16px;font-weight:700}.small{font-size:13px;fill:#91a8c7}.rank{font-size:16px;font-weight:800;text-anchor:middle;fill:#07111f}.point{fill:#ffad5c;stroke:#ffd2a4;stroke-width:3}.track{fill:#1a2b44}.bar{fill:#5ee7f7}.threshold{stroke:#ff7c8d;stroke-width:2;stroke-dasharray:8 7}</style>
+<rect width="1040" height="500" rx="24" fill="#0b172a"/>
+<text x="54" y="58" class="title">A canonical decomposition flips the target rank</text>
+<text x="54" y="88" class="sub">Actual deterministic BM25 measurements from shaki-decomposed-grapheme</text>
+<line x1="70" y1="248" x2="970" y2="248" class="threshold"/><text x="74" y="271" class="small">failure boundary · max rank 1</text>
+<g><text x="145" y="142" class="label">Baseline</text><circle cx="235" cy="202" r="28" class="point"/><text x="235" y="209" class="rank">#1</text><text x="145" y="396" class="small">target BM25 score · 0.809257</text><rect x="145" y="418" width="180" height="12" rx="6" class="track"/><rect x="145" y="418" width="180.00" height="12" rx="6" class="bar"/></g><g><text x="455" y="142" class="label">All mutations</text><circle cx="545" cy="294" r="28" class="point"/><text x="545" y="301" class="rank">#2</text><text x="455" y="396" class="small">target BM25 score · 0.168533</text><rect x="455" y="418" width="180" height="12" rx="6" class="track"/><rect x="455" y="418" width="37.49" height="12" rx="6" class="bar"/></g><g><text x="765" y="142" class="label">Minimal failure</text><circle cx="855" cy="294" r="28" class="point"/><text x="855" y="301" class="rank">#2</text><text x="765" y="396" class="small">target BM25 score · 0.168533</text><rect x="765" y="418" width="180" height="12" rx="6" class="track"/><rect x="765" y="418" width="37.49" height="12" rx="6" class="bar"/></g>
+</svg>

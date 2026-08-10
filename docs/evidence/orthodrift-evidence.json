@@ -1,0 +1,250 @@
+{
+  "artifact_sha256": "7164112795113bd787797fc7edd6927df7179a5c9839e714828d0bb969b33cc0",
+  "capture": {
+    "browser": "Chromium 151.0.7922.34",
+    "container_image": "mcr.microsoft.com/playwright/python@sha256:51d31fdfacb0cff99a1a724152e34ae408d2bd4e7da310ff157450f49261cc59",
+    "gif_frames": 3,
+    "network": "disabled",
+    "pillow": "12.3.0",
+    "playwright": "1.62.0",
+    "viewports": [
+      "1440x1000",
+      "390x844",
+      "1120x820",
+      "1180x650"
+    ]
+  },
+  "case_sha256": "c3c9d28be7722c72b7b3b15fcdce2c2b9ba2e2c54817fcb050851c80626df91c",
+  "claim_boundary": {
+    "contains_personal_data": false,
+    "fixture": "synthetic Şəki lexical retrieval case",
+    "has_native_language_review": false,
+    "is_broad_benchmark": false,
+    "is_dense_retrieval_evidence": false
+  },
+  "files": [
+    {
+      "bytes": 2701,
+      "media_type": "image/svg+xml",
+      "path": "docs/evidence/grapheme-provenance.svg",
+      "sha256": "e5f9851421ec16f2e4ed00cfb0a8650aac09caa0f5a6d43d267eab6a2177f386"
+    },
+    {
+      "bytes": 2165,
+      "media_type": "image/svg+xml",
+      "path": "docs/evidence/rank-flip.svg",
+      "sha256": "32e4ad71b77a328f9e8add35adfead35c7bcd65084e9fcc2539d2bfa3db5ee13"
+    },
+    {
+      "bytes": 1774,
+      "media_type": "image/svg+xml",
+      "path": "docs/evidence/reduction-trace.svg",
+      "sha256": "2bd6125ad4e0b00505c58f2f3094e403c4e17605416b2c4fe5644a455bbab8b5"
+    },
+    {
+      "bytes": 39426,
+      "dimensions": [
+        1180,
+        650
+      ],
+      "media_type": "image/png",
+      "path": "docs/evidence/shaki-cli.png",
+      "sha256": "82a70e53d2d7c48db5d2a742bdd17d6a34d1714a21e8b2acaecb2f20b51c0897"
+    },
+    {
+      "bytes": 340,
+      "media_type": "text/plain",
+      "path": "docs/evidence/shaki-cli.txt",
+      "sha256": "610210efb27580f786087632508e5ce1fd46dff548b4fa2657c1f2a6fe51764a"
+    },
+    {
+      "bytes": 369550,
+      "dimensions": [
+        1120,
+        820
+      ],
+      "frames": 3,
+      "media_type": "image/gif",
+      "path": "docs/evidence/shaki-interaction.gif",
+      "sha256": "51d195a0730c8950b34c45ef7f505608d7c891ddb45f8eca81796a7cc0803eac"
+    },
+    {
+      "bytes": 449420,
+      "dimensions": [
+        1440,
+        1919
+      ],
+      "media_type": "image/png",
+      "path": "docs/evidence/shaki-report-full.png",
+      "sha256": "558dacebd6ecad64b38e4afce0f1c6703ee839b0e260b05860be3cc069b465cb"
+    },
+    {
+      "bytes": 159058,
+      "dimensions": [
+        390,
+        844
+      ],
+      "media_type": "image/png",
+      "path": "docs/evidence/shaki-report-mobile.png",
+      "sha256": "b080ef697166c52909e8d7cc5768715fe3818a0160ea0f5d9686a33cbdf4790f"
+    },
+    {
+      "bytes": 15404,
+      "media_type": "text/html",
+      "path": "docs/evidence/shaki-report.html",
+      "sha256": "6194c05322614fd1969659686360d9568a92314674930e3c60810ca6e66d8ff7"
+    },
+    {
+      "bytes": 322323,
+      "dimensions": [
+        1440,
+        1000
+      ],
+      "media_type": "image/png",
+      "path": "docs/evidence/shaki-report.png",
+      "sha256": "124fef0478d8499cd8ae66a1c9003762f0c54522f452e34f0059aa3497329016"
+    },
+    {
+      "bytes": 2409,
+      "media_type": "application/x-ndjson",
+      "path": "docs/evidence/shaki-run.jsonl",
+      "sha256": "7164112795113bd787797fc7edd6927df7179a5c9839e714828d0bb969b33cc0"
+    },
+    {
+      "bytes": 3063,
+      "media_type": "image/svg+xml",
+      "path": "docs/evidence/verification-architecture.svg",
+      "sha256": "3667ac2f0c8680fb5d9639c4edb7dc9cf8b033caf1f12274a83255c74f263b6a"
+    }
+  ],
+  "format": "orthodrift.evidence.v1",
+  "result": {
+    "baseline_rank": 1,
+    "case": "shaki-decomposed-grapheme",
+    "evaluations": 3,
+    "full_mutant_rank": 2,
+    "minimal_edits": 1,
+    "minimal_rank": 2,
+    "minimality": "global",
+    "supplied_edits": 3
+  },
+  "runtime": {
+    "engine_sha256": "fed990de1789bf3c06f8155c41e7c0c93846b7cc8b5178c0e0e2b5c468cde4a7",
+    "orthodrift_version": "0.1.0",
+    "python_implementation": "cpython",
+    "python_unicode_version": "16.0.0",
+    "python_version": "3.14.6",
+    "regex_version": "2026.7.19"
+  },
+  "source_revision": "c5b83677a3792424909d5f2c4ae2708854eaa2a4",
+  "source_tree": "423dd50f3113021fa36aa3baaf7bd781c086aef5",
+  "sources": [
+    {
+      "bytes": 1675,
+      "path": "examples/shaki-rank-flip.json",
+      "sha256": "b0e1d7509b5d8e1fd15f99d57f3b2a527b690b8f81eaba29374e22a2d126f91b"
+    },
+    {
+      "bytes": 1517,
+      "path": "pyproject.toml",
+      "sha256": "872a850bbeb4e11384489c5bb853662323164daab93fb23003ea05df8cdcb2c1"
+    },
+    {
+      "bytes": 394,
+      "path": "requirements/evidence-browser-image.lock.json",
+      "sha256": "1ba302dec7680863dcc3340ea8a129413c738c66b7f8bb0a4d95421bcf9e4c0f"
+    },
+    {
+      "bytes": 693,
+      "media_type": "text/plain",
+      "path": "requirements/evidence-browser.txt",
+      "sha256": "bdf23c0da87e7bd3d2e2a1b8a6df6b2dff1269fafc605eabf452ea26288941ea"
+    },
+    {
+      "bytes": 85,
+      "path": "requirements/runtime.in",
+      "sha256": "30b167d72ed0a5d1f1efa631afd94a9ea65c0fc2693690eafb5661b6d4099bea"
+    },
+    {
+      "bytes": 9744,
+      "media_type": "text/plain",
+      "path": "requirements/runtime.txt",
+      "sha256": "cc259ce93aa597de444fd5bb5d53f635b50d6aa963070fef808d37462caa6092"
+    },
+    {
+      "bytes": 2287,
+      "path": "src/orthodrift/__init__.py",
+      "sha256": "3365cac6e50bc6ce47cc1b2bf55f02946e0f6d460e984b897f33df03c119c907"
+    },
+    {
+      "bytes": 2246,
+      "path": "src/orthodrift/_io.py",
+      "sha256": "2a171ac56850c6e1a376d2dcecb80f2ed6c488beddfd6694998dfa5ff7225a17"
+    },
+    {
+      "bytes": 4726,
+      "path": "src/orthodrift/_schema.py",
+      "sha256": "4d8be017de7d39045bc5b4a7b342848b5fb7ca6967a6f114cb3bff53789d9556"
+    },
+    {
+      "bytes": 5126,
+      "path": "src/orthodrift/cli.py",
+      "sha256": "b803dd8797551580cbb2c76d46cb00edc6947a49978070e901587ee55f6505a2"
+    },
+    {
+      "bytes": 18444,
+      "path": "src/orthodrift/experiment.py",
+      "sha256": "c672c3db20e6995e6374725cbc601df89d443890b12be43ff2a48bafebc2e1ee"
+    },
+    {
+      "bytes": 1383,
+      "path": "src/orthodrift/normalization.py",
+      "sha256": "bc40f02f6971342504d3e18127ac185dd03e63419c8d7a895299db9453c1aea4"
+    },
+    {
+      "bytes": 1,
+      "path": "src/orthodrift/py.typed",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "bytes": 8133,
+      "path": "src/orthodrift/reduction.py",
+      "sha256": "19622110e01e1449a1c3adac32633c29b27ff3319e14354311bec9248a98aba7"
+    },
+    {
+      "bytes": 19347,
+      "path": "src/orthodrift/report.py",
+      "sha256": "931c802c0c2f8105f6d06ea32f517322bb4a150ac087b1c81370f6effa4964a6"
+    },
+    {
+      "bytes": 6528,
+      "path": "src/orthodrift/retrieval.py",
+      "sha256": "c2ffc5151db7aa7948a65b31c21a551490f3a138a60345bb75938eb14e846274"
+    },
+    {
+      "bytes": 5061,
+      "path": "src/orthodrift/rules.py",
+      "sha256": "77e244f338b72dc64dcc130d39c298f49ef829dc4c3e0cae5f199f5afce54a52"
+    },
+    {
+      "bytes": 7651,
+      "path": "src/orthodrift/run_serialization.py",
+      "sha256": "667b10541ebb64f01ac866ec90ca254fbf2eae5a540f5f0614cefe325fe4fb03"
+    },
+    {
+      "bytes": 4778,
+      "path": "src/orthodrift/serialization.py",
+      "sha256": "05f197a83a4ae1af7a6b4a71370ccad5e84059cfd05c47c765ad631a3c85ed06"
+    },
+    {
+      "bytes": 11366,
+      "path": "src/orthodrift/text.py",
+      "sha256": "54c8de9f09d9d590c65990e81f7e77548f520c62710de1e124138e349ddd3a61"
+    },
+    {
+      "bytes": 30176,
+      "path": "tools/capture_evidence.py",
+      "sha256": "a3d6f22c67ecff0d2d1a0ff7a861d81681d669414c75c90feffaee7ae2334ffd"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 414" role="img">
+<title>Actual failure-reduction trace</title>
+<desc>Every cached oracle evaluation and measured target rank used by the reducer.</desc>
+<style>text{font-family:Inter,system-ui,sans-serif;fill:#eaf2ff}.title{font-size:30px;font-weight:750}.sub{font-size:14px;fill:#91a8c7}.meta{font-size:13px;fill:#91a8c7}.query{font:13px ui-monospace,SFMono-Regular,monospace}.status{font-size:14px;font-weight:850}</style>
+<rect width="1200" height="414" rx="24" fill="#0b172a"/>
+<text x="46" y="56" class="title">Global minimum · 1 of 3 edits</text>
+<text x="46" y="88" class="sub">3 deterministic oracle evaluations; failure means target rank exceeds 1.</text>
+<g transform="translate(46 144)"><rect width="1108" height="58" rx="13" fill="#101f35" stroke="#243a58"/><text x="18" y="25" class="meta">trial 1 · edits [∅]</text><text x="18" y="46" class="query">Şəki atlası 2026</text><text x="940" y="27" class="status" fill="#7be0b2">PASS</text><text x="940" y="47" class="meta">target rank 1</text></g><g transform="translate(46 222)"><rect width="1108" height="58" rx="13" fill="#101f35" stroke="#243a58"/><text x="18" y="25" class="meta">trial 2 · edits [0,1,2]</text><text x="18" y="46" class="query">ŞəkI atlası 2027</text><text x="940" y="27" class="status" fill="#ff7c8d">FAIL</text><text x="940" y="47" class="meta">target rank 2</text></g><g transform="translate(46 300)"><rect width="1108" height="58" rx="13" fill="#101f35" stroke="#243a58"/><text x="18" y="25" class="meta">trial 3 · edits [0]</text><text x="18" y="46" class="query">Şəki atlası 2026</text><text x="940" y="27" class="status" fill="#ff7c8d">FAIL</text><text x="940" y="47" class="meta">target rank 2</text></g>
+</svg>
