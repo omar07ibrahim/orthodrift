@@ -136,8 +136,8 @@
     "python_version": "3.14.6",
     "regex_version": "2026.7.19"
   },
-  "source_revision": "f3f14650f0711f41979e748ee6e45a2f509c53c9",
-  "source_tree": "f5e96ffb37f12ba8e0d9f5ed5c879123589d2dc3",
+  "source_revision": "4b3a4afa449b5fa1d49fc7c88d56622793c22df1",
+  "source_tree": "9ed02ca805c5128d8a4263dcd789b921e6021e44",
   "sources": [
     {
       "bytes": 1675,
@@ -145,9 +145,9 @@
       "sha256": "b0e1d7509b5d8e1fd15f99d57f3b2a527b690b8f81eaba29374e22a2d126f91b"
     },
     {
-      "bytes": 1517,
+      "bytes": 1750,
       "path": "pyproject.toml",
-      "sha256": "872a850bbeb4e11384489c5bb853662323164daab93fb23003ea05df8cdcb2c1"
+      "sha256": "2f312b19c26cfc91bfcf7a5156b253c045ec3c79e05a2ef4481bf6392dd1b986"
     },
     {
       "bytes": 394,
