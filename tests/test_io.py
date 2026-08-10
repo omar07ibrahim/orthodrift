@@ -62,14 +62,14 @@ def test_bounded_reader_rejects_oversized_and_invalid_utf8(tmp_path: Path) -> No
         _io.read_text_limited(oversized, max_bytes=4)
 
     invalid = tmp_path / "invalid.json"
-    invalid.write_bytes(b"\\xff")
+    invalid.write_bytes(bytes([0xFF]))
     with pytest.raises(ValueError, match="not valid UTF-8"):
         _io.read_text_limited(invalid, max_bytes=4)
 
 
 def test_record_reader_bounds_record_count(tmp_path: Path) -> None:
     artifact = tmp_path / "many.jsonl"
-    artifact.write_text("{}\\n{}\\n", encoding="utf-8")
+    artifact.write_bytes(b"{}" + bytes([10]) + b"{}" + bytes([10]))
 
     with pytest.raises(ValueError, match="exceeds 1 records"):
         _io.read_lf_records(artifact, max_records=1)

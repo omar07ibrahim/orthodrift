@@ -1,0 +1,43 @@
+name: One-shot Python format
+
+on:
+  push:
+    branches: ["codex/portfolio-evidence"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orthodrift-one-shot-format
+  cancel-in-progress: true
+
+jobs:
+  format:
+    if: ${{ github.event.head_commit.message != 'Format Python sources' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the feature branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: codex/portfolio-evidence
+      - name: Set up exact Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.14.6"
+      - name: Format and publish only formatter changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-deps ruff==0.16.2
+          python -m ruff format .
+          if test -z "$(git status --porcelain=v1 --untracked-files=all)"; then
+            exit 0
+          fi
+          git diff --check
+          git config user.name "Omar Ibrahim"
+          git config user.email "31526072+omar07ibrahim@users.noreply.github.com"
+          git add -- src tests
+          test "$(git diff --cached --name-only | grep -Ev '^(src|tests)/' | wc -l)" -eq 0
+          GIT_AUTHOR_NAME="Omar Ibrahim"           GIT_AUTHOR_EMAIL="31526072+omar07ibrahim@users.noreply.github.com"           GIT_COMMITTER_NAME="Omar Ibrahim"           GIT_COMMITTER_EMAIL="31526072+omar07ibrahim@users.noreply.github.com"             git commit -m "Format Python sources"
+          git push origin HEAD:refs/heads/codex/portfolio-evidence

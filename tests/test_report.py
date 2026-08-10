@@ -27,16 +27,15 @@ def test_report_is_derived_from_a_verified_run() -> None:
 
 
 def test_report_escapes_experiment_text_in_markup_and_json() -> None:
-    run = run_case(load_case(EXAMPLE))
-    document = replace(run.case.documents[0], text=run.case.documents[0].text + " <script>alert")
-    changed = run_case(replace(run.case, documents=(document, *run.case.documents[1:])))
+    case = replace(load_case(EXAMPLE), name="case <script>alert")
+    changed = run_case(case)
 
     rendered = render_report(changed)
 
-    assert "&lt;script&gt;alert" not in rendered
+    assert "<title>case <script>alert" not in rendered
+    assert "<title>case &lt;script&gt;alert" in rendered
     assert "\\u003cscript>alert" in rendered
     assert changed.runtime.engine_sha256 in rendered
-
 
 def test_report_write_is_no_clobber_by_default(tmp_path: Path) -> None:
     run = run_case(load_case(EXAMPLE))

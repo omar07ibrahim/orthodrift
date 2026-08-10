@@ -39,6 +39,7 @@ _ENGINE_PATHS = (
     "experiment.py",
     "normalization.py",
     "reduction.py",
+    "report.py",
     "retrieval.py",
     "rules.py",
     "run_serialization.py",

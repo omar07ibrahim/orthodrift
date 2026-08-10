@@ -1,5 +1,7 @@
 """Self-contained reports for verified OrthoDrift experiment runs."""
 
+# ruff: noqa: E501 -- embedded standalone HTML is intentionally readable source
+
 from __future__ import annotations
 
 import html
