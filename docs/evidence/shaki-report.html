@@ -54,17 +54,20 @@
       text-transform: uppercase;
     }
     .hero-grid { display: grid; grid-template-columns: 1.4fr .6fr; gap: 28px; align-items: end; }
+    .hero-grid > * { min-width: 0; }
     h1 { max-width: 820px; margin: 0; font-size: clamp(2.5rem, 6vw, 5.4rem); line-height: .97; letter-spacing: -.06em; }
     .lede { max-width: 720px; margin: 24px 0 0; color: var(--muted); font-size: 1.07rem; }
     .verified {
       justify-self: end;
+      min-width: 0;
+      max-width: 100%;
       padding: 18px 20px;
       border: 1px solid rgba(123,224,178,.32);
       border-radius: 18px;
       background: rgba(123,224,178,.08);
     }
     .verified strong { display: block; color: var(--green); font-size: 1.05rem; }
-    .verified span { color: var(--muted); font: .72rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .verified span { display: block; overflow-wrap: anywhere; color: var(--muted); font: .72rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 30px 0 0; }
     .metric, .panel {
       border: 1px solid var(--line);
@@ -125,7 +128,7 @@
       .shell { width: min(100% - 24px, 1160px); }
       .hero { padding-top: 38px; }
       .hero-grid, .two-col { grid-template-columns: 1fr; }
-      .verified { justify-self: start; }
+      .verified { justify-self: stretch; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .panel { padding: 20px; }
       .panel-head { display: block; }
@@ -199,7 +202,7 @@
         <div><span>OrthoDrift</span><code>0.1.0</code></div>
         <div><span>Python / Unicode</span><code>cpython 3.14.6 · UCD 16.0.0</code></div>
         <div><span>regex</span><code>2026.7.19</code></div>
-        <div><span>engine sha256</span><code>fed990de1789bf3c06f8155c41e7c0c93846b7cc8b5178c0e0e2b5c468cde4a7</code></div>
+        <div><span>engine sha256</span><code>8560282f31fb8e5fceecda4ef66c690d6264f9723adfda8f8d10ba37db4a4fe1</code></div>
       </div>
     </section>
     <section class="panel">

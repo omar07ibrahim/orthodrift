@@ -1,5 +1,5 @@
 {
-  "artifact_sha256": "7164112795113bd787797fc7edd6927df7179a5c9839e714828d0bb969b33cc0",
+  "artifact_sha256": "59a97ca9424e5bf1638b8df3d89174a3c639c9d6df0b05c02d52523686ce7212",
   "capture": {
     "browser": "Chromium 151.0.7922.34",
     "container_image": "mcr.microsoft.com/playwright/python@sha256:51d31fdfacb0cff99a1a724152e34ae408d2bd4e7da310ff157450f49261cc59",
@@ -58,7 +58,7 @@
       "sha256": "610210efb27580f786087632508e5ce1fd46dff548b4fa2657c1f2a6fe51764a"
     },
     {
-      "bytes": 369550,
+      "bytes": 376700,
       "dimensions": [
         1120,
         820
@@ -66,49 +66,49 @@
       "frames": 3,
       "media_type": "image/gif",
       "path": "docs/evidence/shaki-interaction.gif",
-      "sha256": "51d195a0730c8950b34c45ef7f505608d7c891ddb45f8eca81796a7cc0803eac"
+      "sha256": "97df3964fed18a05334c7f1d78469bfbc62c64d2fdde3867fedc347fff40de2f"
     },
     {
-      "bytes": 449420,
+      "bytes": 450391,
       "dimensions": [
         1440,
         1919
       ],
       "media_type": "image/png",
       "path": "docs/evidence/shaki-report-full.png",
-      "sha256": "558dacebd6ecad64b38e4afce0f1c6703ee839b0e260b05860be3cc069b465cb"
+      "sha256": "5aa4ccdda2dc852c21f002dbdd5f6d84742b5b8d569fdd932b1a5831508d0347"
     },
     {
-      "bytes": 159058,
+      "bytes": 153142,
       "dimensions": [
         390,
         844
       ],
       "media_type": "image/png",
       "path": "docs/evidence/shaki-report-mobile.png",
-      "sha256": "b080ef697166c52909e8d7cc5768715fe3818a0160ea0f5d9686a33cbdf4790f"
+      "sha256": "87eb31b5298c5e021d698863d75ff4c71e68d017fe50cd3060802f817c0fea4b"
     },
     {
-      "bytes": 15404,
+      "bytes": 15527,
       "media_type": "text/html",
       "path": "docs/evidence/shaki-report.html",
-      "sha256": "6194c05322614fd1969659686360d9568a92314674930e3c60810ca6e66d8ff7"
+      "sha256": "800778787e7fa94c6bf230c170f387522f28318fa70a6cdb1cfa8f548e5934b7"
     },
     {
-      "bytes": 322323,
+      "bytes": 323204,
       "dimensions": [
         1440,
         1000
       ],
       "media_type": "image/png",
       "path": "docs/evidence/shaki-report.png",
-      "sha256": "124fef0478d8499cd8ae66a1c9003762f0c54522f452e34f0059aa3497329016"
+      "sha256": "8954deb530287347e7b8c39dcc974e4cd8a9d15ec9b721886c55c78888c4c105"
     },
     {
       "bytes": 2409,
       "media_type": "application/x-ndjson",
       "path": "docs/evidence/shaki-run.jsonl",
-      "sha256": "7164112795113bd787797fc7edd6927df7179a5c9839e714828d0bb969b33cc0"
+      "sha256": "59a97ca9424e5bf1638b8df3d89174a3c639c9d6df0b05c02d52523686ce7212"
     },
     {
       "bytes": 3063,
@@ -129,15 +129,15 @@
     "supplied_edits": 3
   },
   "runtime": {
-    "engine_sha256": "fed990de1789bf3c06f8155c41e7c0c93846b7cc8b5178c0e0e2b5c468cde4a7",
+    "engine_sha256": "8560282f31fb8e5fceecda4ef66c690d6264f9723adfda8f8d10ba37db4a4fe1",
     "orthodrift_version": "0.1.0",
     "python_implementation": "cpython",
     "python_unicode_version": "16.0.0",
     "python_version": "3.14.6",
     "regex_version": "2026.7.19"
   },
-  "source_revision": "c5b83677a3792424909d5f2c4ae2708854eaa2a4",
-  "source_tree": "423dd50f3113021fa36aa3baaf7bd781c086aef5",
+  "source_revision": "f3f14650f0711f41979e748ee6e45a2f509c53c9",
+  "source_tree": "f5e96ffb37f12ba8e0d9f5ed5c879123589d2dc3",
   "sources": [
     {
       "bytes": 1675,
@@ -212,9 +212,9 @@
       "sha256": "19622110e01e1449a1c3adac32633c29b27ff3319e14354311bec9248a98aba7"
     },
     {
-      "bytes": 19347,
+      "bytes": 19470,
       "path": "src/orthodrift/report.py",
-      "sha256": "931c802c0c2f8105f6d06ea32f517322bb4a150ac087b1c81370f6effa4964a6"
+      "sha256": "9f4e211c20c0e2e7f5063889ab29d37d44207d61f44e38a4d391881e5c9c7bba"
     },
     {
       "bytes": 6528,
