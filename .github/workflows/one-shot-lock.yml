@@ -1,0 +1,49 @@
+name: One-shot dependency lock
+
+on:
+  push:
+    branches: ["codex/portfolio-evidence"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orthodrift-one-shot-lock
+  cancel-in-progress: true
+
+jobs:
+  lock:
+    if: ${{ github.event.head_commit.message != 'Lock Python environments' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out the feature branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: codex/portfolio-evidence
+      - name: Set up exact Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.14.6"
+      - name: Resolve and validate hash-locked environments
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install pip-tools==7.6.0
+          python -m piptools compile             --generate-hashes             --resolver=backtracking             --strip-extras             --no-header             --no-emit-index-url             --no-emit-trusted-host             --output-file=requirements/runtime.txt             requirements/runtime.in
+          python -m piptools compile             --generate-hashes             --resolver=backtracking             --strip-extras             --no-header             --no-emit-index-url             --no-emit-trusted-host             --output-file=requirements/quality.txt             requirements/quality.in
+          python -m pip install --dry-run --require-hashes -r requirements/runtime.txt
+          python -m pip install --dry-run --require-hashes -r requirements/quality.txt
+          git diff --check
+      - name: Publish only generated lock files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s requirements/runtime.txt
+          test -s requirements/quality.txt
+          git config user.name "Omar Ibrahim"
+          git config user.email "31526072+omar07ibrahim@users.noreply.github.com"
+          git add -- requirements/runtime.txt requirements/quality.txt
+          test "$(git diff --cached --name-only | wc -l)" -eq 2
+          GIT_AUTHOR_NAME="Omar Ibrahim"           GIT_AUTHOR_EMAIL="31526072+omar07ibrahim@users.noreply.github.com"           GIT_COMMITTER_NAME="Omar Ibrahim"           GIT_COMMITTER_EMAIL="31526072+omar07ibrahim@users.noreply.github.com"             git commit -m "Lock Python environments"
+          git push origin HEAD:refs/heads/codex/portfolio-evidence

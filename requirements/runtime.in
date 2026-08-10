@@ -1,0 +1,2 @@
+# Runtime contract used by compatibility, wheel, and evidence jobs.
+regex==2026.7.19
