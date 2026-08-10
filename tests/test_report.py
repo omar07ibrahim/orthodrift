@@ -23,6 +23,8 @@ def test_report_is_derived_from_a_verified_run() -> None:
     assert '"rank":1' in rendered
     assert '"rank":2' in rendered
     assert run.runtime.engine_sha256 in rendered
+    assert ".hero-grid > * { min-width: 0; }" in rendered
+    assert "overflow-wrap: anywhere" in rendered
     assert "https://" not in rendered
 
 

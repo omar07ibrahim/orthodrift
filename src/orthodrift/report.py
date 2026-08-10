@@ -69,17 +69,20 @@ _TEMPLATE = """<!doctype html>
       text-transform: uppercase;
     }
     .hero-grid { display: grid; grid-template-columns: 1.4fr .6fr; gap: 28px; align-items: end; }
+    .hero-grid > * { min-width: 0; }
     h1 { max-width: 820px; margin: 0; font-size: clamp(2.5rem, 6vw, 5.4rem); line-height: .97; letter-spacing: -.06em; }
     .lede { max-width: 720px; margin: 24px 0 0; color: var(--muted); font-size: 1.07rem; }
     .verified {
       justify-self: end;
+      min-width: 0;
+      max-width: 100%;
       padding: 18px 20px;
       border: 1px solid rgba(123,224,178,.32);
       border-radius: 18px;
       background: rgba(123,224,178,.08);
     }
     .verified strong { display: block; color: var(--green); font-size: 1.05rem; }
-    .verified span { color: var(--muted); font: .72rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .verified span { display: block; overflow-wrap: anywhere; color: var(--muted); font: .72rem/1.4 ui-monospace, SFMono-Regular, Consolas, monospace; }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 30px 0 0; }
     .metric, .panel {
       border: 1px solid var(--line);
@@ -140,7 +143,7 @@ _TEMPLATE = """<!doctype html>
       .shell { width: min(100% - 24px, 1160px); }
       .hero { padding-top: 38px; }
       .hero-grid, .two-col { grid-template-columns: 1fr; }
-      .verified { justify-self: start; }
+      .verified { justify-self: stretch; }
       .metrics { grid-template-columns: repeat(2, 1fr); }
       .panel { padding: 20px; }
       .panel-head { display: block; }
