@@ -3,105 +3,153 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: orthodrift-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   quality:
-    name: Quality / Python 3.14
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    name: Quality / Python 3.14.6
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Check out exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up exact Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: "3.14"
+          python-version: "3.14.6"
           cache: pip
-          cache-dependency-path: pyproject.toml
-      - name: Install the project
-        run: python -m pip install -e ".[dev]"
-      - name: Lint
-        run: python -m ruff check .
-      - name: Check formatting
-        run: python -m ruff format --check .
-      - name: Check types
-        run: python -m mypy
-      - name: Run tests with coverage
-        run: >-
-          python -m pytest -q --cov=orthodrift --cov-report=term-missing
-          --cov-fail-under=90
+          cache-dependency-path: requirements/quality.txt
+      - name: Install hash-locked quality environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(python --version)" = "Python 3.14.6"
+          python -m pip install --no-deps --require-hashes -r requirements/quality.txt
+          python -m pip install --no-build-isolation --no-deps .
+      - name: Lint, type-check, and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m ruff check .
+          python -m ruff format --check .
+          python -m mypy
+          python -m pytest -q             --cov=orthodrift             --cov-report=term-missing             --cov-fail-under=90
+          python tools/capture_evidence.py --help >/dev/null
+          git diff --check
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
 
   compatibility:
-    name: Compatibility / Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    name: Compatibility / Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.11"
-          - "3.12"
-          - "3.13"
-          - "3.14"
+        python: ["3.11.15", "3.12.13", "3.13.14", "3.14.6"]
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Check out exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up exact Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python }}"
           cache: pip
-          cache-dependency-path: pyproject.toml
-      - name: Install the project
-        run: python -m pip install -e ".[dev]"
-      - name: Run the test suite
-        run: python -m pytest -q
+          cache-dependency-path: requirements/quality.txt
+      - name: Install without dependency resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(python --version)" = "Python ${{ matrix.python }}"
+          python -m pip install --no-deps --require-hashes -r requirements/quality.txt
+          python -m pip install --no-build-isolation --no-deps .
+      - name: Run compatibility suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pytest -q
+          git diff --check
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
 
   wheel:
     name: Wheel / clean install
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Check out exact revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Set up Python
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Set up exact Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
-          python-version: "3.14"
+          python-version: "3.14.6"
           cache: pip
-          cache-dependency-path: pyproject.toml
-      - name: Build the wheel and its offline dependency set
-        run: python -m pip wheel --wheel-dir dist .
-      - name: Install the wheel in a clean environment
+          cache-dependency-path: requirements/quality.txt
+      - name: Build wheel and offline runtime set
+        shell: bash
         run: |
-          python -m venv "$RUNNER_TEMP/orthodrift-smoke"
-          "$RUNNER_TEMP/orthodrift-smoke/bin/pip" install \
-            --no-index --find-links dist orthodrift
-      - name: Exercise the installed CLI
+          set -euo pipefail
+          python -m pip install --no-deps --require-hashes -r requirements/quality.txt
+          python -m build --wheel --no-isolation --outdir dist
+          python -m pip download             --require-hashes             --only-binary=:all:             --dest dist             -r requirements/runtime.txt
+          archive="$(find dist -maxdepth 1 -type f -name 'orthodrift-*.whl' -print -quit)"
+          test -n "$archive"
+          echo "ORTHODRIFT_WHEEL=$archive" >>"$GITHUB_ENV"
+      - name: Inspect wheel surface
+        shell: bash
         run: |
-          "$RUNNER_TEMP/orthodrift-smoke/bin/orthodrift" --help >/dev/null
-          "$RUNNER_TEMP/orthodrift-smoke/bin/orthodrift" run \
-            examples/shaki-rank-flip.json --output "$RUNNER_TEMP/shaki.jsonl"
-          "$RUNNER_TEMP/orthodrift-smoke/bin/orthodrift" verify \
-            "$RUNNER_TEMP/shaki.jsonl"
-      - name: Check installed metadata and typing marker
-        run: >-
-          "$RUNNER_TEMP/orthodrift-smoke/bin/python" -c
-          "import importlib.metadata, importlib.resources, orthodrift;
-          assert orthodrift.__version__ == importlib.metadata.version('orthodrift');
-          assert importlib.resources.files('orthodrift').joinpath('py.typed').is_file()"
+          set -euo pipefail
+          ARCHIVE="$ORTHODRIFT_WHEEL" python - <<'PY'
+          import os
+          import zipfile
+          from pathlib import Path
+
+          archive = Path(os.environ["ARCHIVE"])
+          assert archive.stat().st_size < 512_000
+          with zipfile.ZipFile(archive) as wheel:
+              names = set(wheel.namelist())
+          required = {
+              "orthodrift/__init__.py",
+              "orthodrift/cli.py",
+              "orthodrift/py.typed",
+              "orthodrift/report.py",
+              "orthodrift/run_serialization.py",
+          }
+          assert required <= names
+          assert not any(
+              name.startswith((".github/", "docs/", "examples/", "requirements/", "tests/", "tools/"))
+              for name in names
+          )
+          PY
+      - name: Exercise installed package outside checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          consumer="$RUNNER_TEMP/orthodrift-consumer"
+          python -m venv "$consumer/venv"
+          "$consumer/venv/bin/pip" install             --no-index             --find-links dist             orthodrift==0.1.0
+          cp examples/shaki-rank-flip.json "$consumer/case.json"
+          (
+            cd "$consumer"
+            ./venv/bin/orthodrift run case.json --output run.jsonl
+            ./venv/bin/orthodrift verify run.jsonl
+            ./venv/bin/orthodrift report run.jsonl --output report.html
+            test -s report.html
+            ./venv/bin/python -c               "import importlib.metadata, orthodrift; assert orthodrift.__version__ == importlib.metadata.version('orthodrift') == '0.1.0'"
+          )
+          git diff --check
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"

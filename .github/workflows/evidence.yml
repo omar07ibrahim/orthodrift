@@ -1,29 +1,31 @@
-name: One-shot evidence adoption
+name: OrthoDrift evidence
 
 on:
+  pull_request:
   push:
-    branches: ["codex/portfolio-evidence"]
+    branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: orthodrift-one-shot-evidence
+  group: orthodrift-evidence-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  adopt:
-    if: ${{ github.event.head_commit.message != 'Adopt generated OrthoDrift evidence' }}
+  evidence:
+    name: Visual evidence drift (Chromium 151)
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     env:
       CONTAINER_IMAGE: mcr.microsoft.com/playwright/python@sha256:51d31fdfacb0cff99a1a724152e34ae408d2bd4e7da310ff157450f49261cc59
     steps:
-      - name: Check out the feature branch
+      - name: Check out exact revision
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          ref: codex/portfolio-evidence
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Set up exact experiment runtime
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
@@ -33,15 +35,13 @@ jobs:
         run: |
           set -euo pipefail
           test "$(python --version)" = "Python 3.14.6"
-          python -m pip install --require-hashes -r requirements/quality.txt
+          python -m pip install --no-deps --require-hashes -r requirements/quality.txt
           python -m pip install --no-build-isolation --no-deps .
-          python -m pytest -q
-          python -m ruff check .
-          python -m ruff format --check .
-      - name: Build real CLI, artifact, and report inputs
+      - name: Derive source-bound evidence revision
         shell: bash
         run: |
           set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
           SOURCE_REVISION="$(git log -1 --format=%H -- examples pyproject.toml requirements/runtime.in requirements/runtime.txt requirements/evidence-browser-image.lock.json requirements/evidence-browser.txt src tools/capture_evidence.py)"
           SOURCE_TREE="$(git rev-parse "$SOURCE_REVISION^{tree}")"
           for value in "$SOURCE_REVISION" "$SOURCE_TREE"; do
@@ -50,7 +50,10 @@ jobs:
           done
           echo "SOURCE_REVISION=$SOURCE_REVISION" >>"$GITHUB_ENV"
           echo "SOURCE_TREE=$SOURCE_TREE" >>"$GITHUB_ENV"
-
+      - name: Build real CLI, artifact, and report inputs
+        shell: bash
+        run: |
+          set -euo pipefail
           input="$RUNNER_TEMP/orthodrift-input"
           mkdir -m 700 "$input"
           cp examples/shaki-rank-flip.json "$input/case.json"
@@ -79,7 +82,7 @@ jobs:
           mkdir "$RUNNER_TEMP/evidence-wheelhouse"
           python -m pip download --require-hashes --only-binary=:all:             --dest "$RUNNER_TEMP/evidence-wheelhouse"             -r requirements/evidence-browser.txt
           test "$(find "$RUNNER_TEMP/evidence-wheelhouse" -maxdepth 1 -type f | wc -l)" -eq 5
-      - name: Capture in platform-pinned browser without network
+      - name: Regenerate rasters in a networkless pinned browser
         shell: bash
         run: |
           set -euo pipefail
@@ -90,31 +93,38 @@ jobs:
               python -m pip install --no-index --find-links=/wheelhouse --target=/tmp/evidence-python Pillow==12.3.0 playwright==1.62.0
               python /src/tools/capture_evidence.py capture --output-root /out/orthodrift-evidence --container-image "'"$CONTAINER_IMAGE"'"
               python /src/tools/capture_evidence.py verify-visuals --output-root /out/orthodrift-evidence
+              python /src/tools/capture_evidence.py verify-visuals --output-root /src
             '
       - name: Restore exact experiment runtime
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.14.6"
-      - name: Finalize and independently replay the bundle
+      - name: Finalize, replay, and compare every byte
         shell: bash
         run: |
           set -euo pipefail
-          python tools/capture_evidence.py finalize             --root "$GITHUB_WORKSPACE"             --output-root "$RUNNER_TEMP/orthodrift-evidence"             --source-revision "$SOURCE_REVISION"             --source-tree "$SOURCE_TREE"             --container-image "$CONTAINER_IMAGE"             --browser "Chromium 151.0.7922.34"             --playwright "1.62.0"             --pillow "12.3.0"
-          python tools/capture_evidence.py verify             --root "$GITHUB_WORKSPACE"             --output-root "$RUNNER_TEMP/orthodrift-evidence"             --source-revision "$SOURCE_REVISION"             --source-tree "$SOURCE_TREE"             --container-image "$CONTAINER_IMAGE"
-          test "$(find "$RUNNER_TEMP/orthodrift-evidence/docs/evidence" -type f | wc -l)" -eq 13
-          test -z "$(find "$RUNNER_TEMP/orthodrift-evidence" -type l -print -quit)"
-      - name: Publish only verified evidence
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf docs/evidence
-          cp -a "$RUNNER_TEMP/orthodrift-evidence/docs/evidence" docs/evidence
+          candidate="$RUNNER_TEMP/orthodrift-evidence"
+          python tools/capture_evidence.py finalize             --root "$GITHUB_WORKSPACE"             --output-root "$candidate"             --source-revision "$SOURCE_REVISION"             --source-tree "$SOURCE_TREE"             --container-image "$CONTAINER_IMAGE"             --browser "Chromium 151.0.7922.34"             --playwright "1.62.0"             --pillow "12.3.0"
+          python tools/capture_evidence.py verify             --root "$GITHUB_WORKSPACE"             --output-root "$candidate"             --source-revision "$SOURCE_REVISION"             --source-tree "$SOURCE_TREE"             --container-image "$CONTAINER_IMAGE"
+          python tools/capture_evidence.py verify             --root "$GITHUB_WORKSPACE"             --output-root "$GITHUB_WORKSPACE"             --source-revision "$SOURCE_REVISION"             --source-tree "$SOURCE_TREE"             --container-image "$CONTAINER_IMAGE"
+          test "$(find "$candidate/docs/evidence" -type f | wc -l)" -eq 13
+          test "$(find docs/evidence -type f | wc -l)" -eq 13
+          while IFS= read -r relative; do
+            cmp "$candidate/$relative" "$GITHUB_WORKSPACE/$relative"
+          done <<'FILES'
+          docs/evidence/grapheme-provenance.svg
+          docs/evidence/orthodrift-evidence.json
+          docs/evidence/rank-flip.svg
+          docs/evidence/reduction-trace.svg
+          docs/evidence/shaki-cli.png
+          docs/evidence/shaki-cli.txt
+          docs/evidence/shaki-interaction.gif
+          docs/evidence/shaki-report-full.png
+          docs/evidence/shaki-report-mobile.png
+          docs/evidence/shaki-report.html
+          docs/evidence/shaki-report.png
+          docs/evidence/shaki-run.jsonl
+          docs/evidence/verification-architecture.svg
+          FILES
           git diff --check
-          git config user.name "Omar Ibrahim"
-          git config user.email "31526072+omar07ibrahim@users.noreply.github.com"
-          git add -- docs/evidence
-          test "$(git diff --cached --name-only | wc -l)" -ge 1
-          test "$(git diff --cached --name-only | grep -Ev '^docs/evidence/' | wc -l)" -eq 0
-          git diff --cached --name-only | grep -Fx docs/evidence/orthodrift-evidence.json
-          GIT_AUTHOR_NAME="Omar Ibrahim"           GIT_AUTHOR_EMAIL="31526072+omar07ibrahim@users.noreply.github.com"           GIT_COMMITTER_NAME="Omar Ibrahim"           GIT_COMMITTER_EMAIL="31526072+omar07ibrahim@users.noreply.github.com"             git commit -m "Adopt generated OrthoDrift evidence"
-          git push origin HEAD:refs/heads/codex/portfolio-evidence
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
