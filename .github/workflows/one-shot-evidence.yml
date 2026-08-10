@@ -34,7 +34,7 @@ jobs:
           set -euo pipefail
           test "$(python --version)" = "Python 3.14.6"
           python -m pip install --require-hashes -r requirements/quality.txt
-          python -m pip install --no-build-isolation --no-deps -e .
+          python -m pip install --no-build-isolation --no-deps .
           python -m pytest -q
           python -m ruff check .
           python -m ruff format --check .
