@@ -13,13 +13,13 @@ from orthodrift.experiment import (
     run_case,
 )
 from orthodrift.normalization import NormalizationForm, normalization_step, normalize_variant
-from orthodrift.report import render_report, write_report
 from orthodrift.reduction import (
     Minimality,
     ReductionResult,
     ReductionTrial,
     reduce_failure,
 )
+from orthodrift.report import render_report, write_report
 from orthodrift.retrieval import (
     DEFAULT_BM25_SPEC,
     BM25Index,
