@@ -29,3 +29,14 @@ model robustness.
 The remaining resource assumption is explicit: a valid in-budget case may still
 perform up to its declared proof budget. Run untrusted bulk workloads with
 ordinary OS-level CPU and memory limits.
+
+## Automated assurance
+
+GitHub code scanning uses default setup for Actions and Python with the default
+query suite, remote-and-local threat model, and weekly schedule. Pull requests
+also run the repository's exact-version CI and read-only evidence drift check.
+Dependabot alerts and security updates, secret scanning, push protection, and
+private vulnerability reporting are enabled at repository level.
+
+These controls supplement the explicit local trust boundary; they do not turn
+untrusted case evaluation into a sandbox.
