@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
+from orthodrift._io import MAX_CASE_BYTES, read_text_limited
 from orthodrift._schema import (
     array,
     integer,
@@ -26,6 +27,9 @@ from orthodrift.rules import validate_rule_claim
 from orthodrift.text import GraphemeEdit, Relation, TransformStep, apply_grapheme_edits
 
 CASE_SCHEMA_VERSION = "orthodrift.case.v1"
+MAX_DOCUMENTS = 4_096
+MAX_MUTATIONS = 64
+MAX_PROOF_BUDGET = 100_000
 _RESERVED_PARAMETERS = {"rule_pack_id", "rule_pack_version", "unicode_version"}
 _ENGINE_PATHS = (
     "__init__.py",
@@ -148,6 +152,8 @@ class RetrievalCase:
         string(self.target_document_id, "target_document_id")
         if not self.documents:
             raise ValueError("case must contain at least one document")
+        if len(self.documents) > MAX_DOCUMENTS:
+            raise ValueError(f"case cannot exceed {MAX_DOCUMENTS} documents")
         for document in self.documents:
             string(document.document_id, "document_id")
             string(document.text, f"document {document.document_id!r} text")
@@ -160,11 +166,18 @@ class RetrievalCase:
             raise ValueError("max_rank must be greater than zero")
         if not self.mutations:
             raise ValueError("case must contain at least one mutation")
+        if len(self.mutations) > MAX_MUTATIONS:
+            raise ValueError(f"case cannot exceed {MAX_MUTATIONS} mutations")
         mutation_ids = [mutation.mutation_id for mutation in self.mutations]
         if len(mutation_ids) != len(set(mutation_ids)):
             raise ValueError("case mutation identifiers must be unique")
-        if type(self.proof_budget) is not int or self.proof_budget < 0:
-            raise ValueError("proof_budget must be non-negative")
+        if type(self.proof_budget) is not int or not 0 <= self.proof_budget <= MAX_PROOF_BUDGET:
+            raise ValueError(f"proof_budget must be between 0 and {MAX_PROOF_BUDGET}")
+        text_bytes = len(self.query.encode("utf-8")) + sum(
+            len(document.text.encode("utf-8")) for document in self.documents
+        )
+        if text_bytes > MAX_CASE_BYTES:
+            raise ValueError(f"case query and documents cannot exceed {MAX_CASE_BYTES} UTF-8 bytes")
 
         apply_grapheme_edits(self.query, self.edits)
         for mutation in self.mutations:
@@ -308,7 +321,8 @@ def run_case(
 
 
 def load_case(path: Path) -> RetrievalCase:
-    return case_from_record(loads_mapping(path.read_text(encoding="utf-8"), "case"))
+    payload = read_text_limited(path, max_bytes=MAX_CASE_BYTES)
+    return case_from_record(loads_mapping(payload, "case"))
 
 
 def case_to_record(case: RetrievalCase) -> dict[str, object]:

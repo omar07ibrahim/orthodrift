@@ -54,3 +54,22 @@ def test_no_clobber_publish_preserves_a_dangling_symlink(tmp_path: Path) -> None
 
     assert target.is_symlink()
     assert target.readlink() == tmp_path / "missing.jsonl"
+
+def test_bounded_reader_rejects_oversized_and_invalid_utf8(tmp_path: Path) -> None:
+    oversized = tmp_path / "oversized.json"
+    oversized.write_bytes(b"12345")
+    with pytest.raises(ValueError, match="exceeds 4 bytes"):
+        _io.read_text_limited(oversized, max_bytes=4)
+
+    invalid = tmp_path / "invalid.json"
+    invalid.write_bytes(b"\\xff")
+    with pytest.raises(ValueError, match="not valid UTF-8"):
+        _io.read_text_limited(invalid, max_bytes=4)
+
+
+def test_record_reader_bounds_record_count(tmp_path: Path) -> None:
+    artifact = tmp_path / "many.jsonl"
+    artifact.write_text("{}\\n{}\\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="exceeds 1 records"):
+        _io.read_lf_records(artifact, max_records=1)

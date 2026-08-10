@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from orthodrift._io import MAX_CASE_BYTES
 from orthodrift.experiment import (
     CASE_SCHEMA_VERSION,
     case_from_record,
@@ -174,3 +175,15 @@ def test_duplicate_json_fields_and_surrogates_are_rejected(tmp_path: Path) -> No
     surrogate.write_text(json.dumps(record), encoding="utf-8")
     with pytest.raises(ValueError, match="Unicode scalar values"):
         load_case(surrogate)
+
+def test_case_loader_and_work_budget_are_bounded(tmp_path: Path) -> None:
+    oversized = tmp_path / "oversized.json"
+    oversized.write_bytes(b" " * (MAX_CASE_BYTES + 1))
+    with pytest.raises(ValueError, match="exceeds"):
+        load_case(oversized)
+
+    case = load_case(EXAMPLE)
+    with pytest.raises(ValueError, match="cannot exceed 64 mutations"):
+        replace(case, mutations=case.mutations * 65)
+    with pytest.raises(ValueError, match="proof_budget"):
+        replace(case, proof_budget=100_001)
