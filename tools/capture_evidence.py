@@ -192,9 +192,7 @@ def capture(output_root: Path, container_image: str) -> None:
             interaction.locator(selector).click()
             frames.append(interaction.screenshot(animations="disabled"))
         images = [
-            Image.open(BytesIO(frame)).convert(
-                "P", palette=Image.Palette.ADAPTIVE, colors=128
-            )
+            Image.open(BytesIO(frame)).convert("P", palette=Image.Palette.ADAPTIVE, colors=128)
             for frame in frames
         ]
         images[0].save(
