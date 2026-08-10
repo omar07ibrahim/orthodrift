@@ -13,6 +13,7 @@ from orthodrift.experiment import (
     run_case,
 )
 from orthodrift.normalization import NormalizationForm, normalization_step, normalize_variant
+from orthodrift.report import render_report, write_report
 from orthodrift.reduction import (
     Minimality,
     ReductionResult,
@@ -93,6 +94,7 @@ __all__ = [
     "reduce_failure",
     "read_jsonl",
     "read_runs_jsonl",
+    "render_report",
     "result_from_record",
     "result_to_record",
     "run_case",
@@ -101,7 +103,8 @@ __all__ = [
     "tokenize_words",
     "verify_run",
     "write_jsonl",
+    "write_report",
     "write_runs_jsonl",
 ]
 
-__version__ = "0.1.0a0"
+__version__ = "0.1.0"

@@ -9,6 +9,7 @@ from pathlib import Path
 
 from orthodrift.experiment import RetrievalCaseRun, load_case, run_case
 from orthodrift.reduction import Minimality
+from orthodrift.report import write_report
 from orthodrift.run_serialization import read_runs_jsonl, verify_run, write_runs_jsonl
 
 
@@ -31,6 +32,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify = commands.add_parser("verify", help="replay and verify experiment-run JSONL")
     verify.add_argument("artifact", type=Path, help="path to experiment-run JSONL")
+
+    report = commands.add_parser("report", help="render one verified run as offline HTML")
+    report.add_argument("artifact", type=Path, help="path to experiment-run JSONL")
+    report.add_argument("--output", type=Path, required=True, help="write a self-contained HTML report")
+    report.add_argument("--force", action="store_true", help="replace an existing report")
     return parser
 
 
@@ -42,13 +48,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         if arguments.command == "run":
             run = _run(arguments.case, arguments.output, force=arguments.force)
             _print_run(run, arguments.output)
-        else:
+        elif arguments.command == "verify":
             runs = read_runs_jsonl(arguments.artifact)
             if not runs:
                 raise ValueError("artifact contains no experiment runs")
             for run in runs:
                 verify_run(run)
             print(f"verified: {len(runs)} experiment run(s)")
+        else:
+            _report(arguments.artifact, arguments.output, force=arguments.force)
+            print(f"report: {arguments.output}")
     except (OSError, ValueError) as error:
         print(f"{parser.prog}: error: {error}", file=sys.stderr)
         return 1
@@ -72,6 +81,19 @@ def _run(case_path: Path, output_path: Path | None, *, force: bool) -> Retrieval
             raise ValueError("persisted artifact does not match the completed run")
         verify_run(persisted[0])
     return run
+
+
+def _report(artifact_path: Path, output_path: Path, *, force: bool) -> None:
+    if artifact_path.resolve() == output_path.resolve():
+        raise ValueError("report output must not overwrite the experiment artifact")
+    runs = read_runs_jsonl(artifact_path)
+    if len(runs) != 1:
+        raise ValueError("report requires exactly one experiment run")
+    verify_run(runs[0])
+    try:
+        write_report(output_path, runs[0], overwrite=force)
+    except FileExistsError as error:
+        raise ValueError("report already exists; pass --force to replace it") from error
 
 
 def _print_run(run: RetrievalCaseRun, output_path: Path | None) -> None:
