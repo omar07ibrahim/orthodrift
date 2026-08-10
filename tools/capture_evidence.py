@@ -90,7 +90,13 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     arguments = build_parser().parse_args(argv)
     if arguments.command == "prepare":
-        prepare(arguments.root, arguments.artifact, arguments.report, arguments.cli, arguments.output_root)
+        prepare(
+            arguments.root,
+            arguments.artifact,
+            arguments.report,
+            arguments.cli,
+            arguments.output_root,
+        )
     elif arguments.command == "capture":
         capture(arguments.output_root, arguments.container_image)
     elif arguments.command == "finalize":
@@ -167,7 +173,9 @@ def capture(output_root: Path, container_image: str) -> None:
         desktop.goto(report.as_uri(), wait_until="load")
         desktop.locator("[data-variant=baseline]").wait_for()
         desktop.screenshot(path=evidence / "shaki-report.png", animations="disabled")
-        desktop.screenshot(path=evidence / "shaki-report-full.png", full_page=True, animations="disabled")
+        desktop.screenshot(
+            path=evidence / "shaki-report-full.png", full_page=True, animations="disabled"
+        )
 
         mobile = browser.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=1)
         mobile.goto(report.as_uri(), wait_until="load")
@@ -175,13 +183,20 @@ def capture(output_root: Path, container_image: str) -> None:
         mobile.screenshot(path=evidence / "shaki-report-mobile.png", animations="disabled")
         mobile.close()
 
-        interaction = browser.new_page(viewport={"width": 1120, "height": 820}, device_scale_factor=1)
+        interaction = browser.new_page(
+            viewport={"width": 1120, "height": 820}, device_scale_factor=1
+        )
         interaction.goto(report.as_uri(), wait_until="load")
         frames = [interaction.screenshot(animations="disabled")]
         for selector in ("[data-variant=full]", "[data-variant=minimal]"):
             interaction.locator(selector).click()
             frames.append(interaction.screenshot(animations="disabled"))
-        images = [Image.open(BytesIO(frame)).convert("P", palette=Image.Palette.ADAPTIVE, colors=128) for frame in frames]
+        images = [
+            Image.open(BytesIO(frame)).convert(
+                "P", palette=Image.Palette.ADAPTIVE, colors=128
+            )
+            for frame in frames
+        ]
         images[0].save(
             evidence / "shaki-interaction.gif",
             save_all=True,
@@ -201,7 +216,10 @@ def capture(output_root: Path, container_image: str) -> None:
         desktop.close()
         browser.close()
 
-    if container_image != "mcr.microsoft.com/playwright/python@sha256:51d31fdfacb0cff99a1a724152e34ae408d2bd4e7da310ff157450f49261cc59":
+    if (
+        container_image
+        != "mcr.microsoft.com/playwright/python@sha256:51d31fdfacb0cff99a1a724152e34ae408d2bd4e7da310ff157450f49261cc59"
+    ):
         raise ValueError("capture image does not match the reviewed platform manifest")
 
 
@@ -220,7 +238,9 @@ def finalize(
     evidence = output_root / EVIDENCE_DIRECTORY
     actual = {path.name for path in evidence.iterdir() if path.is_file()}
     if actual != EXPECTED_FILES:
-        raise ValueError(f"evidence files differ before finalization: {sorted(actual ^ EXPECTED_FILES)}")
+        raise ValueError(
+            f"evidence files differ before finalization: {sorted(actual ^ EXPECTED_FILES)}"
+        )
 
     run = _load_verified_run(evidence / "shaki-run.jsonl")
     from orthodrift.run_serialization import run_to_record
@@ -272,7 +292,10 @@ def finalize(
         "sources": sources,
         "files": files,
     }
-    _write_text(evidence / MANIFEST_NAME, json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    _write_text(
+        evidence / MANIFEST_NAME,
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+    )
     verify(root, output_root, source_revision, source_tree, container_image)
 
 
@@ -309,7 +332,10 @@ def verify(
     if manifest["source_revision"] != source_revision or manifest["source_tree"] != source_tree:
         raise ValueError("evidence source binding differs")
     capture_record = _mapping(manifest["capture"], "capture")
-    if capture_record.get("container_image") != container_image or capture_record.get("network") != "disabled":
+    if (
+        capture_record.get("container_image") != container_image
+        or capture_record.get("network") != "disabled"
+    ):
         raise ValueError("capture environment differs")
 
     actual_names = {path.name for path in evidence.iterdir() if path.is_file()}
@@ -321,7 +347,11 @@ def verify(
     expected_sources = [_file_record(path, root) for path in _source_paths(root)]
     if manifest["sources"] != expected_sources:
         raise ValueError("evidence source hashes differ")
-    expected_records = [_file_record(path, output_root) for path in sorted(evidence.iterdir()) if path.name != MANIFEST_NAME]
+    expected_records = [
+        _file_record(path, output_root)
+        for path in sorted(evidence.iterdir())
+        if path.name != MANIFEST_NAME
+    ]
     recorded_files = manifest["files"]
     if not isinstance(recorded_files, list):
         raise ValueError("manifest files must be an array")
@@ -392,7 +422,9 @@ def _source_paths(root: Path) -> list[Path]:
         Path("requirements/runtime.txt"),
         Path("tools/capture_evidence.py"),
     ]
-    relative.extend(path.relative_to(root) for path in sorted((root / "src/orthodrift").glob("*.py")))
+    relative.extend(
+        path.relative_to(root) for path in sorted((root / "src/orthodrift").glob("*.py"))
+    )
     relative.append(Path("src/orthodrift/py.typed"))
     return [root / path for path in sorted(set(relative))]
 
@@ -493,7 +525,9 @@ def _provenance_svg(run: Any) -> str:
 def _reduction_svg(run: Any) -> str:
     height = 180 + 78 * len(run.reduction.trials)
     rows = []
-    for index, (trial, measurement) in enumerate(zip(run.reduction.trials, run.measurements, strict=True)):
+    for index, (trial, measurement) in enumerate(
+        zip(run.reduction.trials, run.measurements, strict=True)
+    ):
         y = 144 + index * 78
         indexes = ",".join(str(value) for value in trial.edit_indexes) or "∅"
         status = "FAIL" if trial.failed else "PASS"
