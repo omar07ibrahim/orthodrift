@@ -176,6 +176,7 @@ def test_duplicate_json_fields_and_surrogates_are_rejected(tmp_path: Path) -> No
     with pytest.raises(ValueError, match="Unicode scalar values"):
         load_case(surrogate)
 
+
 def test_case_loader_and_work_budget_are_bounded(tmp_path: Path) -> None:
     oversized = tmp_path / "oversized.json"
     oversized.write_bytes(b" " * (MAX_CASE_BYTES + 1))

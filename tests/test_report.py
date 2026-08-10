@@ -37,6 +37,7 @@ def test_report_escapes_experiment_text_in_markup_and_json() -> None:
     assert "\\u003cscript>alert" in rendered
     assert changed.runtime.engine_sha256 in rendered
 
+
 def test_report_write_is_no_clobber_by_default(tmp_path: Path) -> None:
     run = run_case(load_case(EXAMPLE))
     target = tmp_path / "report.html"

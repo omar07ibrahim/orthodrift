@@ -55,6 +55,7 @@ def test_no_clobber_publish_preserves_a_dangling_symlink(tmp_path: Path) -> None
     assert target.is_symlink()
     assert target.readlink() == tmp_path / "missing.jsonl"
 
+
 def test_bounded_reader_rejects_oversized_and_invalid_utf8(tmp_path: Path) -> None:
     oversized = tmp_path / "oversized.json"
     oversized.write_bytes(b"12345")

@@ -35,7 +35,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     report = commands.add_parser("report", help="render one verified run as offline HTML")
     report.add_argument("artifact", type=Path, help="path to experiment-run JSONL")
-    report.add_argument("--output", type=Path, required=True, help="write a self-contained HTML report")
+    report.add_argument(
+        "--output", type=Path, required=True, help="write a self-contained HTML report"
+    )
     report.add_argument("--force", action="store_true", help="replace an existing report")
     return parser
 

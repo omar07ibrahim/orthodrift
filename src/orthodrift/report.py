@@ -376,8 +376,8 @@ def _hits_html(variant: dict[str, object]) -> str:
         rows.append(
             f'<div class="hit{" target" if target else ""}">'
             f'<span class="hit-name">#{int(item["rank"])} '
-            f'{html.escape(str(item["document_id"]))}'
-            f'{" · target" if target else ""}</span>'
+            f"{html.escape(str(item['document_id']))}"
+            f"{' · target' if target else ''}</span>"
             f'<div class="bar"><span style="--score:{width:.3f}%"></span></div>'
             f'<span class="score">{score:.6f}</span></div>'
         )
